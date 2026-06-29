@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Please Wait</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            neutral: {
+              950: "#09090b", // Slate ultra-gelap yang elegan
+            }
+          },
+          fontFamily: {
+            sans: ["'Inter'", "sans-serif"]
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #09090b;
+      font-family: 'Inter', sans-serif;
+    }
+    
+    /* Animasi putaran spinner yang sangat halus */
+    @keyframes smooth-spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .spinner-mulus {
+      animation: smooth-spin 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-6 overflow-hidden relative selection:bg-white/10 selection:text-white">
+
+  <!-- Efek radial gradient tipis mewah di latar belakang -->
+  <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.02)_0%,transparent_70%)] pointer-events-none"></div>
+
+  <!-- Kontainer Utama Minimalis -->
+  <div class="relative w-full max-w-sm text-center flex flex-col items-center z-10">
+    
+    <!-- Area Spinner Minimalis -->
+    <div class="relative w-12 h-12 mb-8 flex items-center justify-center">
+      <div class="absolute inset-0 rounded-full border-2 border-white/5"></div>
+      <div class="spinner-mulus absolute inset-0 rounded-full border-2 border-t-white border-r-transparent border-b-transparent border-l-transparent"></div>
+    </div>
+
+    <!-- Teks Status -->
+    <h2 class="text-white text-base font-medium tracking-wide mb-1.5 transition-all duration-300" id="status-title">
+      Connecting securely...
+    </h2>
+    <p class="text-zinc-500 text-xs tracking-wider" id="status-sub">
+      Please wait while we set up your secure path
+    </p>
+
+    <!-- Bar Progres Tipis Elegan -->
+    <div class="w-48 bg-white/5 h-[2px] rounded-full mt-8 relative overflow-hidden">
+      <div id="progress-bar" class="absolute top-0 left-0 h-full bg-white/40 w-0 transition-all duration-300 ease-out"></div>
+    </div>
+    
+    <!-- Angka Persentase Minimalis -->
+    <span class="text-[10px] text-zinc-600 font-medium tracking-widest mt-3 uppercase" id="progress-percentage">
+      0%
+    </span>
+
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // -----------------------------------------------------------------
+      // PENGATURAN UTAMA (Silakan sesuaikan di bawah ini)
+      // -----------------------------------------------------------------
+      
+      // 1. Masukkan Direct Link tujuan akhir atau link iklan Anda di sini:
+      const DIRECT_LINK_TUJUAN = "https://www.google.com"; 
+      
+      // 2. Durasi loading: 5000ms = 5 detik.
+      // Waktu paling pas agar script Social Bar / Popunder Adsterra/Monetag
+      // selesai dimuat & tercatat sebagai impresi sebelum user diredirect.
+      const DURASI_LOADING_MS = 6000; 
+
+      // -----------------------------------------------------------------
+
+      const progressBar = document.getElementById('progress-bar');
+      const progressPercentage = document.getElementById('progress-percentage');
+      const statusTitle = document.getElementById('status-title');
+      const statusSub = document.getElementById('status-sub');
+
+      let progress = 0;
+      const totalSteps = 100;
+      const intervalTime = DURASI_LOADING_MS / totalSteps; // 50ms per 1% untuk durasi 5 detik
+
+      // Frasa transisi dinamis agar loading terasa interaktif dan alami
+      const loadingPhrases = [
+        { pct: 0, text: "Connecting securely...", sub: "Verifying your destination link" },
+        { pct: 30, text: "Optimizing experience...", sub: "Allocating server resources" },
+        { pct: 65, text: "Securing connection...", sub: "Applying end-to-end security layers" },
+        { pct: 90, text: "Almost ready...", sub: "Preparing redirect sequence" }
+      ];
+
+      const interval = setInterval(() => {
+        progress++;
+        
+        if (progress > 100) progress = 100;
+
+        // Update visual progress
+        progressBar.style.width = `${progress}%`;
+        progressPercentage.textContent = `${progress}%`;
+
+        // Update teks status dinamis sesuai progres persen saat ini
+        const currentPhase = loadingPhrases
+          .filter(phrase => progress >= phrase.pct)
+          .pop();
+
+        if (currentPhase && statusTitle.textContent !== currentPhase.text && progress < 100) {
+          statusTitle.style.opacity = '0';
+          statusSub.style.opacity = '0';
+          
+          setTimeout(() => {
+            statusTitle.textContent = currentPhase.text;
+            statusSub.textContent = currentPhase.sub;
+            statusTitle.style.opacity = '1';
+            statusSub.style.opacity = '1';
+          }, 150);
+        }
+
+        // Ketika progres mencapai 100%
+        if (progress >= 100) {
+          clearInterval(interval);
+          
+          statusTitle.textContent = "Redirecting...";
+          statusSub.textContent = "Taking you to your destination now";
+          
+          // Berikan jeda transisi visual singkat (400ms) lalu langsung alihkan
+          setTimeout(() => {
+            window.location.href = DIRECT_LINK_TUJUAN;
+          }, 400);
+        }
+      }, intervalTime);
+    });
+  </script>
+</body>
+</html>
